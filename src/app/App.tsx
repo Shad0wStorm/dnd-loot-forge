@@ -1,25 +1,46 @@
+import { useMemo, useState } from 'react';
 import { AppShell } from '../components/layout/AppShell';
 import { PageHeader } from '../components/layout/PageHeader';
 import { SectionCard } from '../components/layout/SectionCard';
-import { 
-  defaultWeaponGenerationInput,
-  type WeaponGenerationInput,
- } from '../features/weapon-generator/model';
+import { WeaponGeneratorForm } from '../components/form/WeaponGeneratorForm';
+import { WeaponCard } from '../components/output/WeaponCard';
 import { buildWeapon } from '../features/weapon-generator/logic/buildWeapon';
+import {
+  defaultWeaponGenerationInput,
+  type GeneratedWeapon,
+  type GeneratorResult,
+  type WeaponGenerationInput,
+} from '../features/weapon-generator/model';
 
-const demoInput: WeaponGenerationInput = {
-  ...defaultWeaponGenerationInput,
-  theme: ' Guild relic craftsmanship',
-  magicalTheme: 'Fire',
-  weaponCategory: 'Melee',
-  rarity: 'Uncommon',
-  adaptiveFormEnabled: true,
-  deityTag: 'The Forge Saint',
-};
-
-const generated = buildWeapon(demoInput);
 
 export default function App() {
+  const [formValue, setFormValue] = useState<WeaponGenerationInput>({
+    ...defaultWeaponGenerationInput,
+  });
+
+  const [generatedResult, setGeneratedResult] = useState<
+    GeneratorResult<GeneratedWeapon> | null
+  >(null);
+
+  const canRegenerate = useMemo(() => {
+    return formValue.theme.trim().length > 0;
+  }, [formValue.theme]);
+
+  function handleGenerate() {
+    const result = buildWeapon(formValue);
+    setGeneratedResult(result);
+  }
+
+  function handleRegenerate() {
+    const result = buildWeapon(formValue);
+    setGeneratedResult(result);
+  }
+
+  function handleReset() {
+    setFormValue({ ...defaultWeaponGenerationInput });
+    setGeneratedResult(null);
+  }
+
   return (
     <AppShell>
       <PageHeader
@@ -37,11 +58,18 @@ export default function App() {
       </div>
       <div className="app-grid">
         <SectionCard title="Generator Inputs">
-          <pre>{JSON.stringify(demoInput, null, 2)}</pre>
+          <WeaponGeneratorForm
+            value={formValue}
+            onChange={setFormValue}
+            onGenerate={handleGenerate}
+            onReset={handleReset}
+            onRegenerate={handleRegenerate}
+            canRegenerate={canRegenerate}
+            />
         </SectionCard>
 
         <SectionCard title="Generated Weapon">
-          <pre>{JSON.stringify(generated, null, 2)}</pre>
+          <WeaponCard result={generatedResult}/>
         </SectionCard>
       </div>
       

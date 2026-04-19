@@ -100,12 +100,210 @@ h1, h2, h3, p {
     }
 }
 
-pre {
-    margin: 0;
-    padding: 0.75rem;
-    border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.04);
+.generate-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.form-row {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.form-row label {
+    font-weight: 600;
     color: var(--text);
-    overflow-x: auto;
-    font-size: 0.9rem;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+    width: 100%;
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text);
+    padding: 0.75rem 0.85rem;
+    outline: none;
+}
+
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.form-row--checkbox {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+}
+
+.form-row--checkbox input {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.field-error {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #fca5a5;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+button {
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 
+        transform 0.12s ease,
+        opacity 0.12s ease,
+        background 0.12s ease;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.button-secondary {
+    background: transparent;
+    border-color: var(--panel-border);
+    color: var(--text);
+}
+
+.form-validation-summary {
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(252, 165, 165, 0.25);
+    border-radius: var(--radius-sm);
+    background: rgba(127, 29, 29, 0.18);
+    color: #fecaca;
+}
+
+.form-validation-summary p {
+    margin: 0;
+}
+
+.weapon-card {
+  display: grid;
+  gap: 1rem;
+  color: var(--text);
+}
+
+.weapon-card--empty {
+  min-height: 320px;
+  place-content: center;
+  display: grid;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.weapon-card__header h3 {
+  margin-bottom: 0.35rem;
+  font-size: 1.7rem;
+  line-height: 1.15;
+}
+
+.weapon-card__eyebrow {
+  margin-bottom: 0.5rem;
+  color: var(--accent-2);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.weapon-card__subtitle {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.weapon-card__section {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.weapon-card__section h4,
+.weapon-card__warnings h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.weapon-card__section p,
+.weapon-card__warnings li {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(139, 92, 246, 0.16);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.adaptive-form-list,
+.weapon-card__warnings ul,
+.card-preview ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--text-muted);
+}
+
+.weapon-card__warnings {
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: var(--radius-sm);
+  background: rgba(120, 53, 15, 0.18);
+}
+
+.card-preview {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.card-preview__title {
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+.card-preview__subtitle {
+  margin-bottom: 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.card-preview__footer {
+  margin-top: 0.8rem;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  font-style: italic;
 }

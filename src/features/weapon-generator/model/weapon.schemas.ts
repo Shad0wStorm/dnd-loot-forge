@@ -59,7 +59,16 @@ export const weaponGenerationInputSchema = z.object({
     alignmentTag: z.string().max(50, 'Alignment tag is too long'),
     adaptiveFormEnabled: z.boolean,
     notes: z.string().max(300, 'Notes must be 300 characters or less')
-});
+})
+.superRefine((value, ctx) => {
+    if (value.nameMode === 'custom' && value.customName.trim().length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['customName'],
+        message: 'Custom name is required when name mode is set to custom.',
+      });
+    }
+  });
 
 export const weaponFormProfileSchema = z.object({
     form: weaponFormSchema,
