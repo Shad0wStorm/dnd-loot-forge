@@ -1,0 +1,71 @@
+import type { WeaponFormProfile } from './weapon.types';
+
+export const weaponFormProfiles: WeaponFormProfile[] = [
+    {
+        form: 'Longsword',
+        category: 'Melee',
+        baseDamageDice: '1d8',
+        baseDamageType: 'Slashing', 
+        properties: ['Versatile (1d10)'],
+    },
+    {
+        form: 'Battleaxe',
+        category: 'Melee',
+        baseDamageDice: '1d8',
+        baseDamageType: 'Slashing', 
+        properties: ['Versatile (1d10)'],
+    },
+    {
+        form: 'Dagger',
+        category: 'Melee',
+        baseDamageDice: '1d4',
+        baseDamageType: 'Piercing', 
+        properties: ['Finesse', 'Light', 'Thrown'],
+        range: '20/60',
+    },
+    {
+        form: 'Mace',
+        category: 'Melee',
+        baseDamageDice: '1d6',
+        baseDamageType: 'Bludgeoning', 
+        properties: ['Simple'],
+    },
+    {
+        form: 'Spear',
+        category: 'Melee',
+        baseDamageDice: '1d6',
+        baseDamageType: 'Piercing', 
+        properties: ['Thrown', 'Versatile (1d8)'],
+        range: '20/60',
+    },
+    {
+        form: 'Longbow',
+        category: 'Ranged',
+        baseDamageDice: '1d8',
+        baseDamageType: 'Piercing', 
+        properties: ['Ammunition', 'heavy', 'Two-handed'],
+        range: '150/600',
+    },
+    {
+        form: 'Light Crossbow',
+        category: 'Ranged',
+        baseDamageDice: '1d8',
+        baseDamageType: 'Piercing', 
+        properties: ['Ammunition', 'Loading', 'Two-handed'],
+        range: '80/320',
+    },
+    {
+        form: 'Quarterstaff',
+        category: 'Caster',
+        baseDamageDice: '1d6',
+        baseDamageType: 'Bludgeoning', 
+        properties: ['Versatile (1d6)', 'Focus-Friendly'],
+    },
+    {
+        form: 'Wand',
+        category: 'Caster',
+        baseDamageDice: '1d4',
+        baseDamageType: 'Bludgeoning', 
+        properties: ['Focus-Friendly', 'Light'],
+    },
+]
