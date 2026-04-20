@@ -47,7 +47,8 @@ export const tagSchema =z.enum([
     'Cursed',
 ]);
 
-export const weaponGenerationInputSchema = z.object({
+export const weaponGenerationInputSchema = z
+  .object({
     nameMode: z.enum(['custom', 'random']),
     customName: z.string().max(100, 'Name must be 100 characters or less'),
     weaponCategory: weaponCategorySchema,
@@ -57,10 +58,10 @@ export const weaponGenerationInputSchema = z.object({
     magicalTheme: magicalDamageTypeSchema,
     deityTag: z.string().max(50, 'Deity tag is too long'),
     alignmentTag: z.string().max(50, 'Alignment tag is too long'),
-    adaptiveFormEnabled: z.boolean,
-    notes: z.string().max(300, 'Notes must be 300 characters or less')
-})
-.superRefine((value, ctx) => {
+    adaptiveFormEnabled: z.boolean(),
+    notes: z.string().max(300, 'Notes must be 300 characters or less'),
+  })
+  .superRefine((value, ctx) => {
     if (value.nameMode === 'custom' && value.customName.trim().length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
