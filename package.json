@@ -2,7 +2,7 @@
   "name": "dnd-loot-forge",
   "private": true,
   "version": "0.0.1",
-  "homepage": "https://shad0wstorm.github.io/dnd-loot-forge/"
+  "homepage": "https://shad0wstorm.github.io/dnd-loot-forge/",
   "type": "module",
   "scripts": {
     "dev": "vite",

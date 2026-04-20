@@ -4,14 +4,14 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { SectionCard } from '../components/layout/SectionCard';
 import { WeaponGeneratorForm } from '../components/form/WeaponGeneratorForm';
 import { WeaponCard } from '../components/output/WeaponCard';
+import { DMNotesPanel } from '../components/output/DMNotesPanel';
 import { buildWeapon } from '../features/weapon-generator/logic/buildWeapon';
-import {
-  defaultWeaponGenerationInput,
-  type GeneratedWeapon,
-  type GeneratorResult,
-  type WeaponGenerationInput,
-} from '../features/weapon-generator/model';
-
+import { defaultWeaponGenerationInput } from '../features/weapon-generator/model/weapon.defaults';
+import type {
+  GeneratedWeapon,
+  GeneratorResult,
+  WeaponGenerationInput,
+} from '../features/weapon-generator/model/weapon.types';
 
 export default function App() {
   const [formValue, setFormValue] = useState<WeaponGenerationInput>({
@@ -45,19 +45,11 @@ export default function App() {
     <AppShell>
       <PageHeader
         title="D&D Loot Forge"
-        subtitle="A tool to generate random loot for Dungeons & Dragons 5th Edition."
+        subtitle="Create custom low-power magic weapons for campaign prep."
       />
-      <div className="app-header">
-        <SectionCard title="Loot Generator">
-          <p>
-            Generate random loot based on the rules and tables from the Dungeons & Dragons 5th Edition
-            Dungeon Master's Guide. Customize the loot by selecting the desired challenge rating and
-            treasure type.
-          </p>
-        </SectionCard>
-      </div>
+
       <div className="app-grid">
-        <SectionCard title="Generator Inputs">
+        <SectionCard title="Forge Settings">
           <WeaponGeneratorForm
             value={formValue}
             onChange={setFormValue}
@@ -65,14 +57,17 @@ export default function App() {
             onReset={handleReset}
             onRegenerate={handleRegenerate}
             canRegenerate={canRegenerate}
-            />
+          />
         </SectionCard>
 
-        <SectionCard title="Generated Weapon">
-          <WeaponCard result={generatedResult}/>
-        </SectionCard>
+        <div className="results-column">
+          <SectionCard title="Item Card Preview">
+            <WeaponCard result={generatedResult} />
+          </SectionCard>
+
+          <DMNotesPanel result={generatedResult} />
+        </div>
       </div>
-      
     </AppShell>
   );
 }

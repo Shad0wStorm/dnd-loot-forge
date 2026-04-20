@@ -1,4 +1,7 @@
-import type { GeneratorResult, GeneratedWeapon } from '../../features/weapon-generator/model';
+import type {
+  GeneratorResult,
+  GeneratedWeapon,
+} from '../../features/weapon-generator/model/weapon.types';
 
 interface WeaponCardProps {
   result: GeneratorResult<GeneratedWeapon> | null;
@@ -7,9 +10,13 @@ interface WeaponCardProps {
 export function WeaponCard({ result }: WeaponCardProps) {
   if (!result) {
     return (
-      <div className="weapon-card weapon-card--empty">
-        <p>No weapon generated yet.</p>
-        <p>Fill in the form and generate one.</p>
+      <div className="item-card item-card--empty">
+        <div className="item-card__empty-inner">
+          <p className="item-card__empty-title">No item generated yet</p>
+          <p className="item-card__empty-text">
+            Fill in the form and forge a magic weapon.
+          </p>
+        </div>
       </div>
     );
   }
@@ -17,84 +24,71 @@ export function WeaponCard({ result }: WeaponCardProps) {
   const weapon = result.content;
 
   return (
-    <article className="weapon-card">
-      <div className="weapon-card__header">
-        <p className="weapon-card__eyebrow">{weapon.rarity} Magic Weapon</p>
-        <h3>{weapon.name}</h3>
-        <p className="weapon-card__subtitle">
-          {weapon.form} • {weapon.magicalTheme} • {weapon.category}
-        </p>
-      </div>
+    <article className={`item-card item-card--${weapon.rarity.toLowerCase()}`}>
+      <div className="item-card__frame">
+        <div className="item-card__ornament" aria-hidden="true" />
 
-      <div className="weapon-card__section">
-        <h4>Mechanical Effect</h4>
-        <p>{weapon.mechanicalEffect}</p>
-      </div>
+        <header className="item-card__header">
+          <p className="item-card__type-line">Magic Weapon</p>
+          <h3 className="item-card__title">{weapon.name}</h3>
+          <div className="item-card__meta">
+            <span className="item-rarity-badge">{weapon.rarity}</span>
+            <span>{weapon.form}</span>
+            <span>{weapon.magicalTheme}</span>
+          </div>
+        </header>
 
-      <div className="weapon-card__section">
-        <h4>Damage / Effect Notes</h4>
-        <p>{weapon.damageEffectNotes}</p>
-      </div>
+        <section className="item-card__rules">
+          <p className="item-card__section-label">Property</p>
+          <p className="item-card__rules-text">{weapon.mechanicalEffect}</p>
+        </section>
 
-      <div className="weapon-card__section">
-        <h4>Flavour Text</h4>
-        <p>{weapon.flavourText}</p>
-      </div>
+        <section className="item-card__lore">
+          <p className="item-card__section-label">Lore</p>
+          <p className="item-card__lore-text">“{weapon.flavourText}”</p>
+        </section>
 
-      <div className="weapon-card__section">
-        <h4>Tags</h4>
-        <div className="tag-list">
+        <section className="item-card__stats">
+          <div className="item-stat">
+            <span className="item-stat__label">Base</span>
+            <span className="item-stat__value">
+              {weapon.damageEffectNotes.split('.')[0]}
+            </span>
+          </div>
+
+          <div className="item-stat">
+            <span className="item-stat__label">Category</span>
+            <span className="item-stat__value">{weapon.category}</span>
+          </div>
+
+          <div className="item-stat">
+            <span className="item-stat__label">Theme</span>
+            <span className="item-stat__value">{weapon.magicalTheme}</span>
+          </div>
+        </section>
+
+        <section className="item-card__tags">
           {weapon.tags.map((tag) => (
-            <span key={tag} className="tag-pill">
+            <span key={tag} className="item-tag">
               {tag}
             </span>
           ))}
-        </div>
-      </div>
+        </section>
 
-      <div className="weapon-card__section">
-        <h4>Balance Note</h4>
-        <p>{weapon.balanceNote}</p>
-      </div>
-
-      {weapon.adaptiveForms?.length ? (
-        <div className="weapon-card__section">
-          <h4>Adaptive Forms</h4>
-          <ul className="adaptive-form-list">
-            {weapon.adaptiveForms.map((formProfile) => (
-              <li key={formProfile.form}>
-                <strong>{formProfile.form}</strong> — {formProfile.baseDamageDice}{' '}
-                {formProfile.baseDamageType}
-                {formProfile.range ? ` • Range ${formProfile.range}` : ''}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      {result.warnings.length ? (
-        <div className="weapon-card__warnings">
-          <h4>Warnings</h4>
-          <ul>
-            {result.warnings.map((warning) => (
-              <li key={warning}>{warning}</li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      <div className="weapon-card__section weapon-card__section--card-preview">
-        <h4>Card-Friendly Layout</h4>
-        <div className="card-preview">
-          <p className="card-preview__title">{weapon.cardData.title}</p>
-          <p className="card-preview__subtitle">{weapon.cardData.subtitle}</p>
-          <ul>
-            {weapon.cardData.lines.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-          <p className="card-preview__footer">{weapon.cardData.footer}</p>
-        </div>
+        {weapon.adaptiveForms?.length ? (
+          <section className="item-card__adaptive">
+            <p className="item-card__section-label">Adaptive Forms</p>
+            <ul className="item-card__adaptive-list">
+              {weapon.adaptiveForms.map((formProfile) => (
+                <li key={formProfile.form}>
+                  <strong>{formProfile.form}</strong> — {formProfile.baseDamageDice}{' '}
+                  {formProfile.baseDamageType}
+                  {formProfile.range ? ` • ${formProfile.range}` : ''}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </div>
     </article>
   );
