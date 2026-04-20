@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { AppShell } from '../components/layout/AppShell';
 import { PageHeader } from '../components/layout/PageHeader';
 import { SectionCard } from '../components/layout/SectionCard';
 import { WeaponGeneratorForm } from '../components/form/WeaponGeneratorForm';
 import { WeaponCard } from '../components/output/WeaponCard';
 import { DMNotesPanel } from '../components/output/DMNotesPanel';
+import { ExportCardButton } from '../components/output/ExportCardButton';
 import { buildWeapon } from '../features/weapon-generator/logic/buildWeapon';
 import { defaultWeaponGenerationInput } from '../features/weapon-generator/model/weapon.defaults';
 import type {
@@ -21,6 +22,8 @@ export default function App() {
   const [generatedResult, setGeneratedResult] = useState<
     GeneratorResult<GeneratedWeapon> | null
   >(null);
+
+  const cardRef = useRef<HTMLElement | null>(null);
 
   const canRegenerate = useMemo(() => {
     return formValue.theme.trim().length > 0;
@@ -40,6 +43,10 @@ export default function App() {
     setFormValue({ ...defaultWeaponGenerationInput });
     setGeneratedResult(null);
   }
+
+  const exportFileName = generatedResult
+    ? generatedResult.content.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    : 'dnd-item-card';
 
   return (
     <AppShell>
@@ -62,7 +69,15 @@ export default function App() {
 
         <div className="results-column">
           <SectionCard title="Item Card Preview">
-            <WeaponCard result={generatedResult} />
+            <div className="card-preview-actions">
+              <ExportCardButton
+                targetRef={cardRef}
+                fileName={exportFileName}
+                disabled={!generatedResult}
+              />
+            </div>
+
+            <WeaponCard ref={cardRef} result={generatedResult} />
           </SectionCard>
 
           <DMNotesPanel result={generatedResult} />
