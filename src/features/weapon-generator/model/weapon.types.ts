@@ -1,4 +1,4 @@
-export type Rarity = 'Common' | 'Uncommon';
+export type Rarity = 'Common' | 'Uncommon' | 'Rare' | 'Very Rare' | 'Legendary';
 
 export type WeaponCategory = 'Melee' | 'Ranged' | 'Caster' | 'Adaptive';
 
@@ -40,6 +40,11 @@ export type Tag =
     |   'Blessed'
     |   'Cursed';
 
+export interface GoldValueEstimate {
+    low: number;
+    high: number;
+    display: string;
+}
 
 export interface WeaponGenerationInput {
     nameMode: 'custom' | 'random';
@@ -85,6 +90,7 @@ export interface GeneratedWeapon {
     tags: Tag[];
     balanceNote: string;
     cardData: GeneratedWeaponCardData;
+    estimatedGoldValue: GoldValueEstimate;
 }
 
 export interface GeneratorResult<T> {
@@ -92,3 +98,4 @@ export interface GeneratorResult<T> {
     source: 'rules' | 'ai' | 'hybrid';
     warnings: string[];
 }
+

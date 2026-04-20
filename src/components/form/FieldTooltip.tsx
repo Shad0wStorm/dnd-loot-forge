@@ -1,0 +1,4 @@
+interface FieldTooltipProps {
+    text: string;
+}
+
