@@ -3,6 +3,18 @@ import type {
     WeaponForm,
 } from '../model/weapon.types';
 
+const allForms: WeaponForm[] = [
+    'Longsword',
+    'Battleaxe',
+    'Dagger',
+    'Mace',
+    'Spear',
+    'Longbow',
+    'Light Crossbow',
+    'Quarterstaff',
+    'Wand',
+];
+
 export function getAllowedFormsForCategory(
     category: WeaponCategory,
 ): WeaponForm[] {
@@ -14,20 +26,9 @@ export function getAllowedFormsForCategory(
         case 'Caster':
             return ['Wand', 'Quarterstaff'];
         case 'Adaptive':
-            return [
-                'Longsword',
-                'Battleaxe',
-                'Dagger',
-                'Mace',
-                'Quarterstaff',
-                'Spear',
-                'Longbow',
-                'Light Crossbow',
-                'Wand',
-                
-            ];
+            return allForms;
         default:
-            return [];
+            return allForms;
     }
 }
 

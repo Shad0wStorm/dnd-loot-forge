@@ -3,6 +3,7 @@ import { buildWeaponName } from './buildWeaponName';
 import { buildFlavourText } from './buildFlavourText';
 import { balanceWeapon } from './balanceWeapon';
 import { buildAdaptiveForms, deriveWeaponForm } from './deriveWeaponForm';
+import { estimateGoldValue } from './estimateGoldValue';
 import { selectEffect } from './selectEffect';
 import type {
   GeneratedWeapon,
@@ -15,8 +16,12 @@ function deriveTags(
   magicalTheme: WeaponGenerationInput['magicalTheme'],
   adaptiveFormEnabled: boolean,
   deityTag: string,
+  alignmentTag: string,
+  theme: string,
+  notes: string,
 ): Tag[] {
   const tags: Tag[] = [];
+  const combinedText = `${deityTag} ${alignmentTag} ${theme} ${notes}`.toLowerCase();
 
   if (['Fire', 'Cold', 'Lightning', 'Thunder'].includes(magicalTheme)) {
     tags.push('Elemental');
@@ -32,6 +37,39 @@ function deriveTags(
 
   if (deityTag.trim()) {
     tags.push('Divine');
+  }
+
+  if (
+    ['hunter', 'hunt', 'track', 'tracking', 'prey', 'pursuit'].some((word) =>
+      combinedText.includes(word),
+    )
+  ) {
+    tags.push('Hunter');
+  }
+
+  if (
+    ['guardian', 'guard', 'ward', 'protect', 'shield', 'defend'].some((word) =>
+      combinedText.includes(word),
+    )
+  ) {
+    tags.push('Guardian');
+  }
+
+  if (
+    ['fortune', 'luck', 'lucky', 'chance', 'omen', 'fate'].some((word) =>
+      combinedText.includes(word),
+    )
+  ) {
+    tags.push('Fortune');
+  }
+
+  if (
+    ['curse', 'cursed', 'grave', 'dark', 'shadow', 'secret', 'veil'].some((word) =>
+      combinedText.includes(word),
+    )
+  ) {
+    tags.push('Shadow');
+    tags.push('Cursed');
   }
 
   if (adaptiveFormEnabled) {
@@ -52,10 +90,24 @@ export function buildWeapon(
     form: selectedForm.form,
     magicalTheme: input.magicalTheme,
     adaptiveFormEnabled: input.adaptiveFormEnabled,
+    theme: input.theme,
+    deityTag: input.deityTag,
+    alignmentTag: input.alignmentTag,
+    notes: input.notes,
   });
 
   const tags = Array.from(
-    new Set([...deriveTags(input.magicalTheme, input.adaptiveFormEnabled, input.deityTag), ...effectTemplate.tags]),
+    new Set([
+      ...deriveTags(
+        input.magicalTheme,
+        input.adaptiveFormEnabled,
+        input.deityTag,
+        input.alignmentTag,
+        input.theme,
+        input.notes,
+      ),
+      ...effectTemplate.tags,
+    ]),
   );
 
   const name = buildWeaponName({
@@ -72,7 +124,7 @@ export function buildWeapon(
     flavourPattern: effectTemplate.flavourPattern,
   });
 
-  const weapon: GeneratedWeapon = {
+  const draftWeapon: GeneratedWeapon = {
     id: createId('weapon'),
     name,
     rarity: input.rarity,
@@ -89,6 +141,11 @@ export function buildWeapon(
     flavourText,
     tags,
     balanceNote: effectTemplate.balanceNote,
+    estimatedGoldValue: {
+      low: 0,
+      high: 0,
+      display: '',
+    },
     cardData: {
       title: name,
       subtitle: `${input.rarity} ${selectedForm.form}`,
@@ -99,6 +156,22 @@ export function buildWeapon(
         `Tags: ${tags.join(', ') || 'None'}`,
       ],
       footer: effectTemplate.balanceNote,
+    },
+  };
+
+  const estimatedGoldValue = estimateGoldValue(draftWeapon);
+
+  const weapon: GeneratedWeapon = {
+    ...draftWeapon,
+    estimatedGoldValue,
+    cardData: {
+      ...draftWeapon.cardData,
+      lines: [
+        `Theme: ${input.magicalTheme}`,
+        `Effect: ${effectTemplate.mechanicalEffect}`,
+        `Base: ${selectedForm.baseDamageDice} ${selectedForm.baseDamageType}`,
+        `Value: ${estimatedGoldValue.display}`,
+      ],
     },
   };
 

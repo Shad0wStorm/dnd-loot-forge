@@ -6,6 +6,16 @@ import type {
     WeaponForm,
 } from '../model/weapon.types';
 
+export type EffectBiasBucket =
+  | 'elemental'
+  | 'divine'
+  | 'shadow'
+  | 'hunter'
+  | 'guardian'
+  | 'fortune'
+  | 'guild'
+  | 'utility';
+
 export interface WeaponEffectTemplate {
     id: string;
     allowedRarities: Rarity[];
@@ -13,19 +23,21 @@ export interface WeaponEffectTemplate {
     allowedForms?: WeaponForm[];
     magicalThemes: MagicalDamageType[];
     tags: Tag[];
+    biasBuckets: EffectBiasBucket[];
     mechanicalEffect: string;
     damageEffectNotes: string;
     flavourPattern: string;
     balanceNote: string;
 }
 
-export const weaponEffectTemplates: WeaponEffectTemplate[] =[
-      {
+export const weaponEffectTemplates: WeaponEffectTemplate[] = [
+  {
     id: 'ember-nick',
     allowedRarities: ['Common', 'Uncommon'],
     allowedCategories: ['Melee', 'Ranged', 'Adaptive'],
     magicalThemes: ['Fire'],
     tags: ['Elemental'],
+    biasBuckets: ['elemental'],
     mechanicalEffect:
       'Once per turn, when this weapon hits, it deals an extra 1 fire damage.',
     damageEffectNotes:
@@ -41,6 +53,7 @@ export const weaponEffectTemplates: WeaponEffectTemplate[] =[
     allowedCategories: ['Melee', 'Ranged', 'Adaptive'],
     magicalThemes: ['Cold'],
     tags: ['Elemental', 'Hunter'],
+    biasBuckets: ['elemental', 'hunter'],
     mechanicalEffect:
       'The first creature you hit with this weapon on your turn has its speed reduced by 5 feet until the start of your next turn.',
     damageEffectNotes:
@@ -56,6 +69,7 @@ export const weaponEffectTemplates: WeaponEffectTemplate[] =[
     allowedCategories: ['Melee', 'Ranged', 'Adaptive'],
     magicalThemes: ['Lightning', 'Thunder'],
     tags: ['Elemental'],
+    biasBuckets: ['elemental'],
     mechanicalEffect:
       'Once per long rest, after you hit with this weapon, you can cause the strike to crack with energy, dealing an extra 1d4 lightning or thunder damage.',
     damageEffectNotes:
@@ -71,6 +85,7 @@ export const weaponEffectTemplates: WeaponEffectTemplate[] =[
     allowedCategories: ['Melee', 'Caster', 'Adaptive'],
     magicalThemes: ['Radiant', 'Arcane'],
     tags: ['Divine', 'Blessed', 'Guardian'],
+    biasBuckets: ['divine', 'guardian', 'utility'],
     mechanicalEffect:
       'This weapon sheds dim light in a 10-foot radius on command. While the light is active, you have advantage on checks made to notice desecrated objects or spaces.',
     damageEffectNotes:
@@ -86,6 +101,7 @@ export const weaponEffectTemplates: WeaponEffectTemplate[] =[
     allowedCategories: ['Melee', 'Caster', 'Adaptive'],
     magicalThemes: ['Necrotic', 'Psychic'],
     tags: ['Shadow', 'Cursed'],
+    biasBuckets: ['shadow', 'utility'],
     mechanicalEffect:
       'When undead come within 30 feet of you, this weapon becomes cool to the touch and emits a faint whisper only you can hear.',
     damageEffectNotes:
@@ -101,6 +117,7 @@ export const weaponEffectTemplates: WeaponEffectTemplate[] =[
     allowedCategories: ['Ranged', 'Melee', 'Adaptive'],
     magicalThemes: ['Arcane', 'Psychic'],
     tags: ['Hunter'],
+    biasBuckets: ['hunter', 'utility'],
     mechanicalEffect:
       'Once per long rest, when you hit a creature with this weapon, you learn whether it is currently below half its hit points.',
     damageEffectNotes:
@@ -116,6 +133,7 @@ export const weaponEffectTemplates: WeaponEffectTemplate[] =[
     allowedCategories: ['Adaptive'],
     magicalThemes: ['Arcane', 'Force'],
     tags: ['Guild', 'Adaptive'],
+    biasBuckets: ['guild'],
     mechanicalEffect:
       'At the end of a long rest, you can reshape this item into another chosen weapon form from its adaptive set. Its magical effect remains the same.',
     damageEffectNotes:
@@ -131,6 +149,7 @@ export const weaponEffectTemplates: WeaponEffectTemplate[] =[
     allowedCategories: ['Melee', 'Caster', 'Adaptive'],
     magicalThemes: ['Thunder', 'Psychic'],
     tags: ['Fortune'],
+    biasBuckets: ['fortune'],
     mechanicalEffect:
       'Once per long rest, when you miss with this weapon, you can create a resonant echo and gain a +1 bonus to the next attack roll you make with it before the end of your next turn.',
     damageEffectNotes:
@@ -140,4 +159,36 @@ export const weaponEffectTemplates: WeaponEffectTemplate[] =[
     balanceNote:
       'A mild correction mechanic, not an action-economy break.',
   },
-]
+  {
+    id: 'guardian-vow',
+    allowedRarities: ['Common', 'Uncommon'],
+    allowedCategories: ['Melee', 'Caster', 'Adaptive'],
+    magicalThemes: ['Radiant', 'Force'],
+    tags: ['Guardian', 'Blessed'],
+    biasBuckets: ['guardian', 'divine'],
+    mechanicalEffect:
+      'Once per long rest, when a creature within 5 feet of you is hit by an attack, this weapon briefly flares and grants that creature a +1 bonus to AC against the triggering attack if it would change the result to a miss.',
+    damageEffectNotes:
+      'A narrow defensive trigger keeps the effect useful but modest.',
+    flavourPattern:
+      'It holds a patient stillness, like a promise made by a watchful sentinel.',
+    balanceNote:
+      'Small reactive defense effect. Uncommon ceiling at most.',
+  },
+  {
+    id: 'veiled-step',
+    allowedRarities: ['Common', 'Uncommon'],
+    allowedCategories: ['Melee', 'Ranged', 'Caster', 'Adaptive'],
+    magicalThemes: ['Psychic', 'Necrotic', 'Arcane'],
+    tags: ['Shadow'],
+    biasBuckets: ['shadow', 'utility'],
+    mechanicalEffect:
+      'While carried, this weapon dulls the sound of being drawn or stowed, granting a subtle advantage in stealthy or clandestine scenes at the DM’s discretion.',
+    damageEffectNotes:
+      'Narrative stealth utility only, with no direct combat buff.',
+    flavourPattern:
+      'Its presence seems to drink in loose noise and loose words.',
+    balanceNote:
+      'Scene utility. Very safe for low rarity.',
+  },
+];

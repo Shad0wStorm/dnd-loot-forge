@@ -40,7 +40,7 @@ export const WeaponCard = forwardRef<HTMLElement, WeaponCardProps>(
             <div className="item-card__meta">
               <span className="item-rarity-badge">{weapon.rarity}</span>
               <span>{weapon.form}</span>
-              <span>{weapon.magicalTheme}</span>
+              <span>{weapon.category}</span>
             </div>
           </header>
 
@@ -61,13 +61,13 @@ export const WeaponCard = forwardRef<HTMLElement, WeaponCardProps>(
             </div>
 
             <div className="item-stat">
-              <span className="item-stat__label">Category</span>
-              <span className="item-stat__value">{weapon.category}</span>
+              <span className="item-stat__label">Theme</span>
+              <span className="item-stat__value">{weapon.magicalTheme}</span>
             </div>
 
             <div className="item-stat">
-              <span className="item-stat__label">Theme</span>
-              <span className="item-stat__value">{weapon.magicalTheme}</span>
+              <span className="item-stat__label">Value</span>
+              <span className="item-stat__value">{weapon.estimatedGoldValue.display}</span>
             </div>
           </section>
 

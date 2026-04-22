@@ -40,11 +40,7 @@ export type Tag =
     |   'Blessed'
     |   'Cursed';
 
-export interface GoldValueEstimate {
-    low: number;
-    high: number;
-    display: string;
-}
+
 
 export interface WeaponGenerationInput {
     nameMode: 'custom' | 'random';
@@ -69,6 +65,12 @@ export interface WeaponFormProfile {
     range?: string;
 }
 
+export interface GoldValueEstimate {
+    low: number;
+    high: number;
+    display: string;
+}
+
 export interface GeneratedWeaponCardData {
     title: string;
     subtitle: string;
@@ -89,8 +91,8 @@ export interface GeneratedWeapon {
     flavourText: string;
     tags: Tag[];
     balanceNote: string;
-    cardData: GeneratedWeaponCardData;
     estimatedGoldValue: GoldValueEstimate;
+    cardData: GeneratedWeaponCardData;
 }
 
 export interface GeneratorResult<T> {

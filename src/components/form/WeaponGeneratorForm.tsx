@@ -1,12 +1,16 @@
-import type { ChangeEvent, FormEvent } from 'react';
-import { weaponGenerationInputSchema } from '../../features/weapon-generator/model';
-import type { WeaponGenerationInput } from '../../features/weapon-generator/model';
+import { useEffect, type ChangeEvent, type FormEvent } from 'react';
+import { weaponGenerationInputSchema } from '../../features/weapon-generator/model/weapon.schemas';
+import type { WeaponGenerationInput } from '../../features/weapon-generator/model/weapon.types';
 import {
   magicalThemeOptions,
   rarityOptions,
   weaponCategoryOptions,
-  weaponFormOptions,
 } from '../../features/weapon-generator/data/formOptions';
+import {
+  getAllowedFormsForCategory,
+  isFormAllowedForCategory,
+} from '../../features/weapon-generator/utils/formFilters';
+import { FieldTooltip } from './FieldTooltip';
 
 interface WeaponGeneratorFormProps {
   value: WeaponGenerationInput;
@@ -30,6 +34,17 @@ export function WeaponGeneratorForm({
   const fieldErrors = validation.success
     ? {}
     : validation.error.flatten().fieldErrors;
+
+  const allowedForms = getAllowedFormsForCategory(value.weaponCategory);
+
+  useEffect(() => {
+    if (!isFormAllowedForCategory(value.weaponCategory, value.preferredForm)) {
+      onChange({
+        ...value,
+        preferredForm: '',
+      });
+    }
+  }, [value, onChange]);
 
   function updateField<K extends keyof WeaponGenerationInput>(
     key: K,
@@ -127,7 +142,7 @@ export function WeaponGeneratorForm({
           onChange={handleSelectChange}
         >
           <option value="">Random valid form</option>
-          {weaponFormOptions.map((option) => (
+          {allowedForms.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
@@ -152,7 +167,10 @@ export function WeaponGeneratorForm({
       </div>
 
       <div className="form-row">
-        <label htmlFor="theme">Theme</label>
+        <label htmlFor="theme" className="label-with-tooltip">
+          <span>Theme</span>
+          <FieldTooltip text="Broad flavour direction such as forge relic, storm weapon, shrine guardian, or shadow hunter." />
+        </label>
         <input
           id="theme"
           name="theme"
@@ -183,7 +201,10 @@ export function WeaponGeneratorForm({
       </div>
 
       <div className="form-row">
-        <label htmlFor="deityTag">Deity Tag</label>
+        <label htmlFor="deityTag" className="label-with-tooltip">
+          <span>Deity Tag</span>
+          <FieldTooltip text="Optional divine influence, patron, saint, or god associated with the item." />
+        </label>
         <input
           id="deityTag"
           name="deityTag"
@@ -198,7 +219,10 @@ export function WeaponGeneratorForm({
       </div>
 
       <div className="form-row">
-        <label htmlFor="alignmentTag">Alignment / Theme Tag</label>
+        <label htmlFor="alignmentTag" className="label-with-tooltip">
+          <span>Alignment / Theme Tag</span>
+          <FieldTooltip text="Optional moral or narrative angle such as lawful, merciful, vengeful, or secretive." />
+        </label>
         <input
           id="alignmentTag"
           name="alignmentTag"
@@ -224,7 +248,10 @@ export function WeaponGeneratorForm({
       </div>
 
       <div className="form-row">
-        <label htmlFor="notes">Generation Notes</label>
+        <label htmlFor="notes" className="label-with-tooltip">
+          <span>Generation Notes</span>
+          <FieldTooltip text="Optional extra guidance. Good keywords: hunter, guardian, cursed, lucky, stealthy, radiant, defensive, ritual." />
+        </label>
         <textarea
           id="notes"
           name="notes"
