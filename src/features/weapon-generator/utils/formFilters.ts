@@ -32,7 +32,7 @@ export function getAllowedFormsForCategory(
     }
 }
 
-export function isFormAllowedForCateogory(
+export function isFormAllowedForCategory(
     category: WeaponCategory,
     form: WeaponForm | '',
 ): boolean {
