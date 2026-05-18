@@ -19,6 +19,9 @@ interface WeaponGeneratorFormProps {
   onReset: () => void;
   onRegenerate: () => void;
   canRegenerate: boolean;
+  aiGenerationAvailable: boolean;
+  isGenerating: boolean;
+  generationError: string;
 }
 
 export function WeaponGeneratorForm({
@@ -28,6 +31,9 @@ export function WeaponGeneratorForm({
   onReset,
   onRegenerate,
   canRegenerate,
+  aiGenerationAvailable,
+  isGenerating,
+  generationError,
 }: WeaponGeneratorFormProps) {
   const validation = weaponGenerationInputSchema.safeParse(value);
 
@@ -247,6 +253,13 @@ export function WeaponGeneratorForm({
         />
       </div>
 
+      {!aiGenerationAvailable ? (
+        <p className="form-hint">
+          Add VITE_LLM_PROXY_URL or VITE_OPENAI_API_KEY to generate with the LLM.
+          Until then, the local rules generator is used.
+        </p>
+      ) : null}
+
       <div className="form-row">
         <label htmlFor="notes" className="label-with-tooltip">
           <span>Generation Notes</span>
@@ -266,14 +279,26 @@ export function WeaponGeneratorForm({
       </div>
 
       <div className="form-actions">
-        <button type="submit">Generate Weapon</button>
-        <button type="button" onClick={onRegenerate} disabled={!canRegenerate}>
-          Regenerate
+        <button type="submit" disabled={isGenerating}>
+          {isGenerating ? 'Generating...' : 'Generate Weapon'}
+        </button>
+        <button
+          type="button"
+          onClick={onRegenerate}
+          disabled={!canRegenerate || isGenerating}
+        >
+          {isGenerating ? 'Generating...' : 'Regenerate'}
         </button>
         <button type="button" onClick={onReset} className="button-secondary">
           Reset
         </button>
       </div>
+
+      {generationError ? (
+        <div className="form-validation-summary">
+          <p>{generationError}</p>
+        </div>
+      ) : null}
 
       {!validation.success ? (
         <div className="form-validation-summary">

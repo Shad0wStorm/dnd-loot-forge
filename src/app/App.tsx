@@ -6,7 +6,9 @@ import { WeaponGeneratorForm } from '../components/form/WeaponGeneratorForm';
 import { WeaponCard } from '../components/output/WeaponCard';
 import { DMNotesPanel } from '../components/output/DMNotesPanel';
 import { ExportCardButton } from '../components/output/ExportCardButton';
+import { isAiGenerationConfigured } from '../ai/weaponAiClient';
 import { buildWeapon } from '../features/weapon-generator/logic/buildWeapon';
+import { buildAiWeapon } from '../features/weapon-generator/logic/buildAiWeapon';
 import { defaultWeaponGenerationInput } from '../features/weapon-generator/model/weapon.defaults';
 import type {
   GeneratedWeapon,
@@ -22,26 +24,60 @@ export default function App() {
   const [generatedResult, setGeneratedResult] = useState<
     GeneratorResult<GeneratedWeapon> | null
   >(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState('');
 
   const cardRef = useRef<HTMLElement | null>(null);
+  const aiGenerationAvailable = isAiGenerationConfigured();
 
   const canRegenerate = useMemo(() => {
     return formValue.theme.trim().length > 0;
   }, [formValue.theme]);
 
+  async function generateWeapon() {
+    setIsGenerating(true);
+    setGenerationError('');
+
+    try {
+      if (aiGenerationAvailable) {
+        const result = await buildAiWeapon(formValue);
+        setGeneratedResult(result);
+        return;
+      }
+
+      const result = buildWeapon(formValue);
+      setGeneratedResult(result);
+    } catch (error) {
+      const fallbackResult = buildWeapon(formValue);
+      const message =
+        error instanceof Error ? error.message : 'AI generation failed.';
+
+      setGeneratedResult({
+        ...fallbackResult,
+        source: 'hybrid',
+        warnings: [
+          ...fallbackResult.warnings,
+          `AI generation failed, so rules generation was used instead. ${message}`,
+        ],
+      });
+      setGenerationError(`AI generation failed. Rules fallback used. ${message}`);
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+
   function handleGenerate() {
-    const result = buildWeapon(formValue);
-    setGeneratedResult(result);
+    void generateWeapon();
   }
 
   function handleRegenerate() {
-    const result = buildWeapon(formValue);
-    setGeneratedResult(result);
+    void generateWeapon();
   }
 
   function handleReset() {
     setFormValue({ ...defaultWeaponGenerationInput });
     setGeneratedResult(null);
+    setGenerationError('');
   }
 
   const exportFileName = generatedResult
@@ -64,6 +100,9 @@ export default function App() {
             onReset={handleReset}
             onRegenerate={handleRegenerate}
             canRegenerate={canRegenerate}
+            aiGenerationAvailable={aiGenerationAvailable}
+            isGenerating={isGenerating}
+            generationError={generationError}
           />
         </SectionCard>
 
