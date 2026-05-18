@@ -19,6 +19,7 @@ import type {
   Tag,
   WeaponGenerationInput,
 } from '../model/weapon.types';
+import type { WeaponFormProfile } from '../model/weapon.types';
 
 const rarityMap: Record<Rarity, ItemRarity> = {
   Common: 'common',
@@ -131,29 +132,45 @@ function deriveTags(
   return Array.from(new Set(tags));
 }
 
-function toWeaponGenerationRequest(
-  input: WeaponGenerationInput,
-): WeaponGenerationRequest {
+function toWeaponGenerationRequest(input: WeaponGenerationInput): {
+  request: WeaponGenerationRequest;
+  selectedForm: WeaponFormProfile;
+} {
   const selectedForm = deriveWeaponForm(input.weaponCategory, input.preferredForm);
   const powerModel = derivePowerModel(input);
 
   return {
+    selectedForm,
+    request: {
     weaponBase: selectedForm.form,
+    weaponCategory: input.weaponCategory,
+    baseDamageDice: selectedForm.baseDamageDice,
+    baseDamageType: selectedForm.baseDamageType,
+    baseProperties: selectedForm.properties,
+    baseRange: selectedForm.range,
     rarity: rarityMap[input.rarity],
     powerModel,
     theme: input.theme,
+    magicalTheme: input.magicalTheme,
+    nameMode: input.nameMode,
+    customName: input.customName,
+    deityTag: input.deityTag,
+    alignmentTag: input.alignmentTag,
+    adaptiveFormEnabled: input.adaptiveFormEnabled,
+    notes: input.notes,
     tone: input.alignmentTag || input.notes || 'adventurous fantasy',
     damageFocus: deriveDamageFocus(input),
     utilityFocus: deriveUtilityFocus(input),
     curseAllowed: powerModel === 'cursed',
     attunementAllowed: input.rarity !== 'Common',
+    },
   };
 }
 
 export async function buildAiWeapon(
   input: WeaponGenerationInput,
 ): Promise<GeneratorResult<GeneratedWeapon>> {
-  const request = toWeaponGenerationRequest(input);
+  const { request, selectedForm } = toWeaponGenerationRequest(input);
   const draft = await generateWeaponDraftWithAi(request);
   const finalWeapon = buildFinalWeapon(request, draft);
 
@@ -161,7 +178,6 @@ export async function buildAiWeapon(
     throw new Error(finalWeapon.errors.join(' ') || 'AI draft failed balance validation.');
   }
 
-  const selectedForm = deriveWeaponForm(input.weaponCategory, input.preferredForm);
   const tags = deriveTags(input.magicalTheme, input, Boolean(draft.curseText));
 
   const draftWeapon: GeneratedWeapon = {

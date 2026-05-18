@@ -1,0 +1,10 @@
+name = "dnd-loot-forge-ai"
+main = "src/index.ts"
+compatibility_date = "2026-05-18"
+
+[vars]
+ALLOWED_ORIGIN = "https://shad0wstorm.github.io"
+WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct"
+
+[[ai.bindings]]
+binding = "AI"

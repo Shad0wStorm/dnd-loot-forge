@@ -19,11 +19,9 @@ interface WeaponGeneratorFormProps {
   onReset: () => void;
   onRegenerate: () => void;
   canRegenerate: boolean;
-  aiAssistEnabled: boolean;
   aiGenerationAvailable: boolean;
   isGenerating: boolean;
   generationError: string;
-  onAiAssistChange: (enabled: boolean) => void;
 }
 
 export function WeaponGeneratorForm({
@@ -33,11 +31,9 @@ export function WeaponGeneratorForm({
   onReset,
   onRegenerate,
   canRegenerate,
-  aiAssistEnabled,
   aiGenerationAvailable,
   isGenerating,
   generationError,
-  onAiAssistChange,
 }: WeaponGeneratorFormProps) {
   const validation = weaponGenerationInputSchema.safeParse(value);
 
@@ -80,12 +76,6 @@ export function WeaponGeneratorForm({
 
   function handleCheckboxChange(event: ChangeEvent<HTMLInputElement>) {
     const { name, checked } = event.target;
-
-    if (name === 'aiAssistEnabled') {
-      onAiAssistChange(checked);
-      return;
-    }
-
     updateField(name as keyof WeaponGenerationInput, checked as never);
   }
 
@@ -263,21 +253,10 @@ export function WeaponGeneratorForm({
         />
       </div>
 
-      <div className="form-row form-row--checkbox">
-        <label htmlFor="aiAssistEnabled">AI Assist</label>
-        <input
-          id="aiAssistEnabled"
-          name="aiAssistEnabled"
-          type="checkbox"
-          checked={aiAssistEnabled}
-          onChange={handleCheckboxChange}
-          disabled={!aiGenerationAvailable || isGenerating}
-        />
-      </div>
-
       {!aiGenerationAvailable ? (
         <p className="form-hint">
-          Add VITE_LLM_PROXY_URL or VITE_OPENAI_API_KEY to enable AI generation.
+          Add VITE_LLM_PROXY_URL or VITE_OPENAI_API_KEY to generate with the LLM.
+          Until then, the local rules generator is used.
         </p>
       ) : null}
 

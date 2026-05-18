@@ -29,9 +29,21 @@ export type UtilityFocus =
 
 export type WeaponGenerationRequest = {
   weaponBase: string;
+  weaponCategory: string;
+  baseDamageDice: string;
+  baseDamageType: string;
+  baseProperties: string[];
+  baseRange?: string;
   rarity: ItemRarity;
   powerModel: PowerModel;
   theme: string;
+  magicalTheme: string;
+  nameMode: "custom" | "random";
+  customName: string;
+  deityTag: string;
+  alignmentTag: string;
+  adaptiveFormEnabled: boolean;
+  notes: string;
   tone: string;
   damageFocus: DamageFocus;
   utilityFocus: UtilityFocus;

@@ -24,7 +24,6 @@ export default function App() {
   const [generatedResult, setGeneratedResult] = useState<
     GeneratorResult<GeneratedWeapon> | null
   >(null);
-  const [aiAssistEnabled, setAiAssistEnabled] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState('');
 
@@ -40,7 +39,7 @@ export default function App() {
     setGenerationError('');
 
     try {
-      if (aiAssistEnabled && aiGenerationAvailable) {
+      if (aiGenerationAvailable) {
         const result = await buildAiWeapon(formValue);
         setGeneratedResult(result);
         return;
@@ -101,11 +100,9 @@ export default function App() {
             onReset={handleReset}
             onRegenerate={handleRegenerate}
             canRegenerate={canRegenerate}
-            aiAssistEnabled={aiAssistEnabled}
             aiGenerationAvailable={aiGenerationAvailable}
             isGenerating={isGenerating}
             generationError={generationError}
-            onAiAssistChange={setAiAssistEnabled}
           />
         </SectionCard>
 

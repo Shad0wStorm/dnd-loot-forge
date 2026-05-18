@@ -27,6 +27,70 @@ type OpenAiChatResponse = {
   choices?: OpenAiChatChoice[];
 };
 
+type OllamaChatResponse = {
+  message?: {
+    content?: string;
+  };
+};
+
+type LlmErrorResponse = {
+  error?: {
+    message?: string;
+    type?: string;
+    code?: string;
+  };
+};
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+async function getErrorMessage(response: Response): Promise<string> {
+  const fallback = `LLM provider returned ${response.status}.`;
+  const rawBody = await response.text();
+
+  if (!rawBody) {
+    return fallback;
+  }
+
+  try {
+    const payload = JSON.parse(rawBody) as LlmErrorResponse;
+    const message = payload.error?.message;
+    const code = payload.error?.code;
+    const type = payload.error?.type;
+    const detail = [message, code, type].filter(Boolean).join(' ');
+
+    return detail ? `LLM provider returned ${response.status}: ${detail}` : fallback;
+  } catch {
+    return `${fallback} ${rawBody}`;
+  }
+}
+
+function getPromptWithJsonShape(prompt: string): string {
+  return `${prompt}
+
+JSON shape:
+{
+  "name": "string",
+  "rarity": "string",
+  "weaponBase": "string",
+  "requiresAttunement": boolean,
+  "summary": "string",
+  "rulesText": "string",
+  "flavourText": "string",
+  "visualDescription": "string",
+  "curseText": "optional string",
+  "estimatedGoldValue": number,
+  "balanceNotes": "string"
+}`;
+}
+
+function getSystemPrompt(): string {
+  return 'You generate balanced Dungeons & Dragons 5e-compatible magic weapons from frontend-selected parameters. Return only valid JSON.';
+}
+
 function parseJsonContent(content: string): unknown {
   const trimmed = content.trim();
   const fencedMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i);
@@ -65,61 +129,123 @@ async function requestProxyDraft(
   return parseDraft(await response.json());
 }
 
-async function requestOpenAiDraft(
-  apiKey: string,
+function getChatCompletionsUrl(baseUrl: string): string {
+  const trimmed = baseUrl.replace(/\/$/, '');
+
+  if (trimmed.endsWith('/chat/completions')) {
+    return trimmed;
+  }
+
+  return `${trimmed}/chat/completions`;
+}
+
+async function requestChatCompletionsDraft(
+  options: {
+    apiKey?: string;
+    endpoint: string;
+    model: string;
+    providerName: string;
+  },
   _request: WeaponGenerationRequest,
   prompt: string,
 ): Promise<GeneratedWeaponDraft> {
-  const model = import.meta.env.VITE_OPENAI_MODEL || 'gpt-4o-mini';
+  const requestBody = JSON.stringify({
+    model: options.model,
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content: getSystemPrompt(),
+      },
+      {
+        role: 'user',
+        content: getPromptWithJsonShape(prompt),
+      },
+    ],
+    max_tokens: 800,
+    temperature: 0.8,
+  });
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (options.apiKey) {
+      headers.Authorization = `Bearer ${options.apiKey}`;
+    }
+
+    const response = await fetch(options.endpoint, {
+      method: 'POST',
+      headers,
+      body: requestBody,
+    });
+
+    if (response.ok) {
+      const payload = (await response.json()) as OpenAiChatResponse;
+      const content = payload.choices?.[0]?.message?.content;
+
+      if (!content) {
+        throw new Error('OpenAI response did not include content.');
+      }
+
+      return parseDraft(parseJsonContent(content));
+    }
+
+    const message = await getErrorMessage(response);
+    const isRetryableRateLimit =
+      response.status === 429 &&
+      !message.toLowerCase().includes('quota') &&
+      !message.toLowerCase().includes('billing');
+
+    if (!isRetryableRateLimit || attempt === 2) {
+      throw new Error(`${options.providerName}: ${message}`);
+    }
+
+    await sleep(750 * 2 ** attempt);
+  }
+
+  throw new Error(`${options.providerName} request failed.`);
+}
+
+async function requestOllamaDraft(prompt: string): Promise<GeneratedWeaponDraft> {
+  const baseUrl = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
+  const model = import.meta.env.VITE_LLM_MODEL || 'llama3.1';
+  const response = await fetch(`${baseUrl.replace(/\/$/, '')}/api/chat`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       model,
-      response_format: { type: 'json_object' },
+      stream: false,
+      format: 'json',
       messages: [
         {
           role: 'system',
-          content:
-            'You generate balanced Dungeons & Dragons 5e magic weapons and return only valid JSON.',
+          content: getSystemPrompt(),
         },
         {
           role: 'user',
-          content: `${prompt}
-
-JSON shape:
-{
-  "name": "string",
-  "rarity": "string",
-  "weaponBase": "string",
-  "requiresAttunement": boolean,
-  "summary": "string",
-  "rulesText": "string",
-  "flavourText": "string",
-  "visualDescription": "string",
-  "curseText": "optional string",
-  "estimatedGoldValue": number,
-  "balanceNotes": "string"
-}`,
+          content: getPromptWithJsonShape(prompt),
         },
       ],
-      temperature: 0.8,
+      options: {
+        temperature: 0.8,
+        num_predict: 800,
+      },
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`OpenAI returned ${response.status}.`);
+    throw new Error(`Ollama: ${await getErrorMessage(response)}`);
   }
 
-  const payload = (await response.json()) as OpenAiChatResponse;
-  const content = payload.choices?.[0]?.message?.content;
+  const payload = (await response.json()) as OllamaChatResponse;
+  const content = payload.message?.content;
 
   if (!content) {
-    throw new Error('OpenAI response did not include content.');
+    throw new Error('Ollama response did not include content.');
   }
 
   return parseDraft(parseJsonContent(content));
@@ -127,7 +253,10 @@ JSON shape:
 
 export function isAiGenerationConfigured(): boolean {
   return Boolean(
-    import.meta.env.VITE_LLM_PROXY_URL || import.meta.env.VITE_OPENAI_API_KEY,
+    import.meta.env.VITE_LLM_PROXY_URL ||
+      import.meta.env.VITE_LLM_BASE_URL ||
+      import.meta.env.VITE_OLLAMA_URL ||
+      import.meta.env.VITE_OPENAI_API_KEY,
   );
 }
 
@@ -135,17 +264,49 @@ export async function generateWeaponDraftWithAi(
   request: WeaponGenerationRequest,
 ): Promise<GeneratedWeaponDraft> {
   const prompt = buildWeaponPrompt(request);
+  const provider = import.meta.env.VITE_LLM_PROVIDER || 'auto';
   const proxyEndpoint = import.meta.env.VITE_LLM_PROXY_URL;
 
-  if (proxyEndpoint) {
+  if (proxyEndpoint && (provider === 'auto' || provider === 'proxy')) {
     return requestProxyDraft(proxyEndpoint, request, prompt);
   }
 
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
-
-  if (apiKey) {
-    return requestOpenAiDraft(apiKey, request, prompt);
+  if (provider === 'ollama') {
+    return requestOllamaDraft(prompt);
   }
 
-  throw new Error('AI generation is not configured.');
+  const genericBaseUrl = import.meta.env.VITE_LLM_BASE_URL;
+
+  if (genericBaseUrl && (provider === 'auto' || provider === 'compatible')) {
+    return requestChatCompletionsDraft(
+      {
+        apiKey: import.meta.env.VITE_LLM_API_KEY,
+        endpoint: getChatCompletionsUrl(genericBaseUrl),
+        model: import.meta.env.VITE_LLM_MODEL || 'llama3.1',
+        providerName: 'OpenAI-compatible LLM',
+      },
+      request,
+      prompt,
+    );
+  }
+
+  const openAiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
+  if (openAiKey && (provider === 'auto' || provider === 'openai')) {
+    return requestChatCompletionsDraft(
+      {
+        apiKey: openAiKey,
+        endpoint: 'https://api.openai.com/v1/chat/completions',
+        model:
+          import.meta.env.VITE_LLM_MODEL ||
+          import.meta.env.VITE_OPENAI_MODEL ||
+          'gpt-4o-mini',
+        providerName: 'OpenAI',
+      },
+      request,
+      prompt,
+    );
+  }
+
+  throw new Error('LLM generation is not configured.');
 }
