@@ -88,6 +88,15 @@ VITE_LLM_PROXY_URL=https://your-api.example.com/generate-weapon
 The repo includes a Cloudflare Workers AI proxy scaffold in
 `cloudflare-worker/`. Use it as the hosted LLM endpoint for GitHub Pages.
 
+Production builds are proxy-only. `.env.production` sets:
+
+```env
+VITE_LLM_PROVIDER=proxy
+```
+
+The deployed Worker URL is supplied by a GitHub repository variable named
+`VITE_LLM_PROXY_URL`.
+
 Local Worker testing:
 
 ```powershell

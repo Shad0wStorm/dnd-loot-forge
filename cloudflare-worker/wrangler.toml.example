@@ -6,5 +6,5 @@ compatibility_date = "2026-05-18"
 ALLOWED_ORIGIN = "https://your-github-user.github.io"
 WORKERS_AI_MODEL = "@cf/meta/llama-3.1-8b-instruct"
 
-[[ai.bindings]]
+[ai]
 binding = "AI"
