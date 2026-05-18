@@ -1,6 +1,10 @@
 # Initial folder structure
 
 src/
+├── ai/
+│   ├── weaponAi.types.ts
+│   └── weaponPrompt.ts
+│
 ├── app/
 │   ├── App.tsx
 │   ├── main.tsx
@@ -23,12 +27,33 @@ src/
 │       ├── model/
 │       └── utils/
 │
+├── generators/
+│   └── buildFinalWeapon.ts
+│
+├── rules/
+│   ├── balanceValidatr+or.ts
+│   ├── itemPower.types.ts
+│   └── rarityLimits.ts
+│
 └── shared/
     ├── constants/
     ├── lib/
     └── types/
 
 # React + TypeScript + Vite
+
+## AI generation
+
+The frontend can use an LLM when either of these Vite env vars is present:
+
+- `VITE_LLM_PROXY_URL`: recommended. Point this at your own backend/serverless proxy and return either a weapon draft JSON object or `{ "draft": ... }`.
+- `VITE_OPENAI_API_KEY`: local development only. Browser-exposed keys are visible to users, so do not use this for a public deploy.
+
+Optional:
+
+- `VITE_OPENAI_MODEL`: defaults to `gpt-4o-mini` when using `VITE_OPENAI_API_KEY`.
+
+Without AI config, the app keeps using the existing rules-based generator.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

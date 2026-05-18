@@ -26,7 +26,7 @@ export const magicalDamageTypeSchema = z.enum([
     'Fire',
     'Cold',
     'Lightning',
-    'THunder',
+    'Thunder',
     'Radiant',
     'Necrotic',
     'Force',
@@ -43,6 +43,7 @@ export const tagSchema =z.enum([
     'Fortune',
     'Guild',
     'Adaptive',
+    'Arcane',
     'Blessed',
     'Cursed',
 ]);
